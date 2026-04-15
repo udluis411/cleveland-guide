@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuLu's Cleveland Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: Georgia, serif;
+            background-color: #1a1a2e;
+            color: #eee;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            color: #e8c97e;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .message.user {
+            background: #e8c97e;
+            color: #1a1a2e;
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+        }
+
+        .message.assistant {
+            background: #0f3460;
+            color: #eee;
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+        }
+
+        .message a {
+            color: #e8c97e;
+            text-decoration: underline;
+        }
+
+        .message strong {
+            color: #e8c97e;
+        }
+
+        .welcome {
+            background: #0f3460;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.9em;
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        .welcome h2 {
+            color: #e8c97e;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .welcome .prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .prompt-chip {
+            background: #1a1a2e;
+            border: 1px solid #e8c97e;
+            color: #e8c97e;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.82em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prompt-chip:hover {
+            background: #e8c97e;
+            color: #1a1a2e;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 25px;
+            border: 1px solid #0f3460;
+            background: #16213e;
+            color: #eee;
+            font-size: 0.95em;
+            outline: none;
+        }
+
+        .input-area input:focus {
+            border-color: #e8c97e;
+        }
+
+        .input-area button {
+            padding: 12px 24px;
+            background: #e8c97e;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-area button:hover {
+            background: #d4b56a;
+        }
+
+        .typing {
+            color: #aaa;
+            font-style: italic;
+            font-size: 0.85em;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌆 LuLu's Cleveland Guide</h1>
+            <p>Your personal Ohio City neighborhood assistant</p>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="welcome">
+                <h2>👋 Welcome to LuLu's Cleveland Guest Guide!</h2>
+                <p>I'm your personal neighborhood assistant, powered by LuLu's own local knowledge of Ohio City and Cleveland. Think of me as having LuLu on speed dial!</p>
+                <div class="prompts">
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🍺 Best craft beer spots</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">👨‍👩‍👧 Family friendly ideas</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🍣 Special dinner tonight</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">☔ Rainy day activities</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🎨 Art and culture</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🎵 Live music options</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🌅 Sunday morning plans</span>
+                    <span class="prompt-chip" onclick="sendPrompt(this.innerText)">🚗 No car, what can I do?</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Ask me anything about the neighborhood..." onkeypress="handleKey(event)"/>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function handleKey(event) {
+            if (event.key === "Enter") sendMessage();
+        }
+
+        function sendPrompt(text) {
+            document.getElementById("userInput").value = text;
+            sendMessage();
+        }
+
+        function addMessage(text, role) {
+            const chatBox = document.getElementById("chatBox");
+            const msg = document.createElement("div");
+            msg.className = `message ${role}`;
+            if (role === "assistant") {
+                msg.innerHTML = marked.parse(text);
+            } else {
+                msg.innerText = text;
+            }
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, "user");
+            input.value = "";
+
+            const chatBox = document.getElementById("chatBox");
+            const typing = document.createElement("div");
+            typing.className = "typing";
+            typing.innerText = "LuLu's assistant is thinking...";
+            typing.id = "typing";
+            chatBox.appendChild(typing);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            document.getElementById("typing").remove();
+            addMessage(data.response, "assistant");
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+</html>
